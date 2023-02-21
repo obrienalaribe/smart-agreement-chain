@@ -126,9 +126,10 @@ pub struct RemoteIndex {
 }
 
 #[derive(Eq, PartialEq, Clone, Encode, Decode, MaxEncodedLen, TypeInfo, RuntimeDebug)]
+#[repr(u32)]
 pub enum RemoteStorageProvider {
-	S3,
-	GCS
+	S3 = 0,
+	GCS = 1,
 }
 
 #[derive(Eq, PartialEq, Clone, Encode, Decode, TypeInfo, RuntimeDebug)]
