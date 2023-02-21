@@ -116,7 +116,7 @@ pub mod pallet {
 
 	//Index -> RemoteStorage(PrefixUrl)
 	#[pallet::storage]
-	#[pallet::getter(fn storage_backend_indexes)]
+	#[pallet::getter(fn storage_backend_indices)]
 	pub type StorageBackendIndexes<T: Config> = StorageMap<
 		_,
 		Blake2_128Concat,
