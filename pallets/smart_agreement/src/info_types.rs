@@ -6,6 +6,7 @@ use scale_info::TypeInfo;
 use serde::{Deserialize, Serialize};
 use sp_core::H256;
 use sp_std::prelude::*;
+use crate::Index;
 
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Eq, PartialEq, Clone, Copy, Encode, Decode, RuntimeDebug, MaxEncodedLen, TypeInfo)]
@@ -114,4 +115,24 @@ impl<AccountId: Clone> AgreementInfo<AccountId> for ServiceAgreement<AccountId> 
 	fn participants(&self) -> Self::Participants {
 		self.participants.clone()
 	}
+}
+
+
+#[derive(Eq, PartialEq, Clone, Encode, Decode, TypeInfo, RuntimeDebug)]
+pub struct RemoteIndex {
+	pub backend: Index,
+	pub suffix: Index,
+	pub agreement_data_hash: H256,
+}
+
+#[derive(Eq, PartialEq, Clone, Encode, Decode, MaxEncodedLen, TypeInfo, RuntimeDebug)]
+pub enum RemoteStorageProvider {
+	S3,
+	GCS
+}
+
+#[derive(Eq, PartialEq, Clone, Encode, Decode, TypeInfo, RuntimeDebug)]
+pub struct RemoteStorage {
+	pub provider  : RemoteStorageProvider,
+	pub prefixUrl : Vec<u8>
 }

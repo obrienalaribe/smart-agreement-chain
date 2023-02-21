@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 pub mod info_types;
-pub use info_types::{AgreementInfo, Participant, ServiceAgreement, VoteInfo};
+pub use info_types::{AgreementInfo, Participant, ServiceAgreement, VoteInfo, RemoteStorage, RemoteStorageProvider, RemoteIndex};
 
 pub use pallet::*;
 
@@ -25,6 +25,7 @@ pub mod pallet {
 		traits::{Currency, ReservableCurrency, StorageVersion},
 	};
 	use frame_system::pallet_prelude::*;
+	use sp_core::{H256, storage::Storage};
 
 	pub type BalanceOf<T> =
 		<<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
@@ -55,6 +56,7 @@ pub mod pallet {
 	pub struct Pallet<T>(PhantomData<T>);
 
 	pub type AgreementId<T> = <T as frame_system::Config>::Hash;
+	pub type Index =  u128;
 
 	/// Query Agreement which has been proposed but not approved
 	#[pallet::storage]
@@ -100,6 +102,43 @@ pub mod pallet {
 	#[pallet::storage]
 	#[pallet::getter(fn agreement_count)]
 	pub type AgreementCount<T> = StorageValue<_, u128, ValueQuery>;
+
+	//AgreementId -> Vec<(StorageBackendIndex, Suffix, ContentHash)>
+	#[pallet::storage]
+	#[pallet::getter(fn remote_indexes)]
+	pub type RemoteIndexes<T: Config> = StorageMap<
+		_,
+		Blake2_128Concat,
+		AgreementId<T>,
+		RemoteIndex,
+		OptionQuery,
+	>;
+
+	//Index -> RemoteStorage(PrefixUrl)
+	#[pallet::storage]
+	#[pallet::getter(fn storage_backend_indexes)]
+	pub type StorageBackendIndexes<T: Config> = StorageMap<
+		_,
+		Blake2_128Concat,
+		Index,
+		RemoteStorage,
+		OptionQuery,
+	>;
+
+	// Predefined set of prefix URLs at genesis to be referenced via index
+	#[pallet::genesis_config]
+	#[derive(Default)]
+	pub struct GenesisConfig;
+
+	#[pallet::genesis_build]
+	impl<T: Config> GenesisBuild<T> for GenesisConfig {
+		fn build(&self) {
+			let aws = RemoteStorage { provider: RemoteStorageProvider::S3, prefixUrl: "AWS_BUCKET/agreements".encode() };
+			let gcp = RemoteStorage { provider: RemoteStorageProvider::GCS, prefixUrl: "GCP_BUCKET/agreements".encode() };
+			<StorageBackendIndexes<T>>::insert(0, aws);
+			<StorageBackendIndexes<T>>::insert(1, gcp);
+		}
+	}
 
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
