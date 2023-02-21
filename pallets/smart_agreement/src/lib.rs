@@ -311,9 +311,9 @@ pub mod pallet {
 		) -> DispatchResult {
 
 			match storage_provider {
-				RemoteStorageProvider::S3 => {
-					ensure!(StorageBackendIndexes::<T>::get(0).is_some(), Error::<T>::UnknownStorageBackendIndex);
-					let remote_index: RemoteIndex = RemoteIndex { prefix: 0, suffix: suffix, agreement_id: agreement_id };
+				rsp @ RemoteStorageProvider::S3 => {
+					ensure!(StorageBackendIndexes::<T>::get(rsp as u32).is_some(), Error::<T>::UnknownStorageBackendIndex);
+					let remote_index: RemoteIndex = RemoteIndex { prefix: 0, suffix, agreement_id: agreement_id };
 					RemoteIndexes::<T>::insert(&agreement_id, remote_index);
 				}
 				RemoteStorageProvider::GCS => {
