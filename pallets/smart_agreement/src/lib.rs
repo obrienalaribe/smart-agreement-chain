@@ -133,8 +133,8 @@ pub mod pallet {
 	#[pallet::genesis_build]
 	impl<T: Config> GenesisBuild<T> for GenesisConfig {
 		fn build(&self) {
-			let aws = RemoteStorage { provider: RemoteStorageProvider::S3, prefixUrl: "AWS_BUCKET/agreements".encode() };
-			let gcp = RemoteStorage { provider: RemoteStorageProvider::GCS, prefixUrl: "GCP_BUCKET/agreements".encode() };
+			let aws = RemoteStorage { provider: RemoteStorageProvider::S3, prefix: "AWS_BUCKET/agreements".encode() };
+			let gcp = RemoteStorage { provider: RemoteStorageProvider::GCS, prefix: "GCP_BUCKET/agreements".encode() };
 			<StorageBackendIndexes<T>>::insert(0, aws);
 			<StorageBackendIndexes<T>>::insert(1, gcp);
 		}
@@ -172,6 +172,8 @@ pub mod pallet {
 		DoubleVote,
 		/// Thrown when trying to sign/vote for a proposal which has already passed
 		ApprovalAlreadyAchievedForProposal,
+		/// Thrown when the wrong storage index provided is unknown
+		UnknownStorageBackendIndex,
 	}
 
 	#[pallet::hooks]
@@ -297,6 +299,31 @@ pub mod pallet {
 			_agreement_id: AgreementId<T>,
 		) -> DispatchResult {
 			// Todo implement
+			Ok(())
+		}
+
+		#[pallet::weight(0)]
+		pub fn store_agreement_evidence(
+			_origin: OriginFor<T>,
+			agreement_id: AgreementId<T>,
+			storage_provider: RemoteStorageProvider,
+			suffix: Index
+		) -> DispatchResult {
+
+			match storage_provider {
+				RemoteStorageProvider::S3 => {
+					ensure!(StorageBackendIndexes::<T>::get(0).is_some(), Error::<T>::UnknownStorageBackendIndex);
+					let remote_index: RemoteIndex = RemoteIndex { prefix: 0, suffix: suffix, agreement_id: agreement_id };
+					RemoteIndexes::<T>::insert(&agreement_id, remote_index);
+				}
+				RemoteStorageProvider::GCS => {
+					ensure!(StorageBackendIndexes::<T>::get(1).is_some(), Error::<T>::UnknownStorageBackendIndex);
+					let remote_index: RemoteIndex = RemoteIndex { prefix: 1, suffix: suffix, agreement_id: agreement_id };
+					RemoteIndexes::<T>::insert(&agreement_id, remote_index);
+				}
+			}
+
+
 			Ok(())
 		}
 	}
