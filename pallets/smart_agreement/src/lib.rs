@@ -302,6 +302,12 @@ pub mod pallet {
 			Ok(())
 		}
 
+		/// Enables persistence/recreation of remote storage path
+		/// Checks:
+		/// - Prefix index exist
+		/// Action:
+		/// - Stores remote location path for providers
+		///
 		#[pallet::weight(0)]
 		pub fn store_agreement_evidence(
 			_origin: OriginFor<T>,
@@ -316,8 +322,8 @@ pub mod pallet {
 					let remote_index: RemoteIndex = RemoteIndex { prefix: 0, suffix, agreement_id: agreement_id };
 					RemoteIndexes::<T>::insert(&agreement_id, remote_index);
 				}
-				RemoteStorageProvider::GCS => {
-					ensure!(StorageBackendIndexes::<T>::get(1).is_some(), Error::<T>::UnknownStorageBackendIndex);
+				rsp @ RemoteStorageProvider::GCS => {
+					ensure!(StorageBackendIndexes::<T>::get(rsp as u32).is_some(), Error::<T>::UnknownStorageBackendIndex);
 					let remote_index: RemoteIndex = RemoteIndex { prefix: 1, suffix: suffix, agreement_id: agreement_id };
 					RemoteIndexes::<T>::insert(&agreement_id, remote_index);
 				}
