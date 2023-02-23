@@ -215,7 +215,7 @@ pub fn run() -> Result<()> {
 						if !cfg!(feature = "runtime-benchmarks") {
 							return Err("Benchmarking wasn't enabled when building the node. \
 								You can enable it with `--features runtime-benchmarks`."
-								.into())
+								.into());
 						}
 						cmd.run::<Block, HeroRuntimeExecutor>(config)
 					},
@@ -243,8 +243,9 @@ pub fn run() -> Result<()> {
 							&ext_factory,
 						)
 					},
-					BenchmarkCmd::Machine(cmd) =>
-						cmd.run(&config, SUBSTRATE_REFERENCE_HARDWARE.clone()),
+					BenchmarkCmd::Machine(cmd) => {
+						cmd.run(&config, SUBSTRATE_REFERENCE_HARDWARE.clone())
+					},
 				}
 			})
 		},

@@ -1,7 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 pub mod info_types;
-pub use info_types::{AgreementInfo, Participant, ServiceAgreement, VoteInfo, RemoteStorage, RemoteStorageProvider, RemoteIndex};
+pub use info_types::{
+	AgreementInfo, Participant, RemoteIndex, RemoteStorage, RemoteStorageProvider,
+	ServiceAgreement, VoteInfo,
+};
 
 pub use pallet::*;
 
@@ -25,7 +28,7 @@ pub mod pallet {
 		traits::{Currency, ReservableCurrency, StorageVersion},
 	};
 	use frame_system::pallet_prelude::*;
-	use sp_core::{H256, storage::Storage};
+	use sp_core::{storage::Storage, H256};
 
 	pub type BalanceOf<T> =
 		<<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
@@ -56,7 +59,7 @@ pub mod pallet {
 	pub struct Pallet<T>(PhantomData<T>);
 
 	pub type AgreementId<T> = <T as frame_system::Config>::Hash;
-	pub type Index =  u128;
+	pub type Index = u128;
 
 	/// Query Agreement which has been proposed but not approved
 	#[pallet::storage]
@@ -106,24 +109,14 @@ pub mod pallet {
 	//AgreementId -> Vec<(StorageBackendIndex, Suffix, ContentHash)>
 	#[pallet::storage]
 	#[pallet::getter(fn remote_indexes)]
-	pub type RemoteIndexes<T: Config> = StorageMap<
-		_,
-		Blake2_128Concat,
-		AgreementId<T>,
-		RemoteIndex,
-		OptionQuery,
-	>;
+	pub type RemoteIndexes<T: Config> =
+		StorageMap<_, Blake2_128Concat, AgreementId<T>, RemoteIndex, OptionQuery>;
 
 	//Index -> RemoteStorage(PrefixUrl)
 	#[pallet::storage]
 	#[pallet::getter(fn storage_backend_indices)]
-	pub type StorageBackendIndexes<T: Config> = StorageMap<
-		_,
-		Blake2_128Concat,
-		Index,
-		RemoteStorage,
-		OptionQuery,
-	>;
+	pub type StorageBackendIndexes<T: Config> =
+		StorageMap<_, Blake2_128Concat, Index, RemoteStorage, OptionQuery>;
 
 	// Predefined set of prefix URLs at genesis to be referenced via index
 	#[pallet::genesis_config]
@@ -133,8 +126,14 @@ pub mod pallet {
 	#[pallet::genesis_build]
 	impl<T: Config> GenesisBuild<T> for GenesisConfig {
 		fn build(&self) {
-			let aws = RemoteStorage { provider: RemoteStorageProvider::S3, prefix: "AWS_BUCKET/agreements".encode() };
-			let gcp = RemoteStorage { provider: RemoteStorageProvider::GCS, prefix: "GCP_BUCKET/agreements".encode() };
+			let aws = RemoteStorage {
+				provider: RemoteStorageProvider::S3,
+				prefix: "AWS_BUCKET/agreements".encode(),
+			};
+			let gcp = RemoteStorage {
+				provider: RemoteStorageProvider::GCS,
+				prefix: "GCP_BUCKET/agreements".encode(),
+			};
 			<StorageBackendIndexes<T>>::insert(0, aws);
 			<StorageBackendIndexes<T>>::insert(1, gcp);
 		}
@@ -313,22 +312,26 @@ pub mod pallet {
 			_origin: OriginFor<T>,
 			agreement_id: AgreementId<T>,
 			storage_provider: RemoteStorageProvider,
-			suffix: Index
+			suffix: Index,
 		) -> DispatchResult {
-
 			match storage_provider {
 				rsp @ RemoteStorageProvider::S3 => {
-					ensure!(StorageBackendIndexes::<T>::get(rsp as u32).is_some(), Error::<T>::UnknownStorageBackendIndex);
-					let remote_index: RemoteIndex = RemoteIndex { prefix: 0, suffix, agreement_id: agreement_id };
+					ensure!(
+						StorageBackendIndexes::<T>::get(rsp as u32).is_some(),
+						Error::<T>::UnknownStorageBackendIndex
+					);
+					let remote_index: RemoteIndex = RemoteIndex { prefix: 0, suffix, agreement_id };
 					RemoteIndexes::<T>::insert(&agreement_id, remote_index);
-				}
+				},
 				rsp @ RemoteStorageProvider::GCS => {
-					ensure!(StorageBackendIndexes::<T>::get(rsp as u32).is_some(), Error::<T>::UnknownStorageBackendIndex);
-					let remote_index: RemoteIndex = RemoteIndex { prefix: 1, suffix: suffix, agreement_id: agreement_id };
+					ensure!(
+						StorageBackendIndexes::<T>::get(rsp as u32).is_some(),
+						Error::<T>::UnknownStorageBackendIndex
+					);
+					let remote_index: RemoteIndex = RemoteIndex { prefix: 1, suffix, agreement_id };
 					RemoteIndexes::<T>::insert(&agreement_id, remote_index);
-				}
+				},
 			}
-
 
 			Ok(())
 		}

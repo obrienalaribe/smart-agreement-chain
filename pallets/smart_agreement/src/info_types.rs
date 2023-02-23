@@ -1,12 +1,12 @@
 use codec::{Decode, Encode, MaxEncodedLen};
 use frame_support::sp_runtime::RuntimeDebug;
 
+use crate::Index;
 use scale_info::TypeInfo;
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 use sp_core::H256;
 use sp_std::prelude::*;
-use crate::Index;
 
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Eq, PartialEq, Clone, Copy, Encode, Decode, RuntimeDebug, MaxEncodedLen, TypeInfo)]
@@ -117,7 +117,6 @@ impl<AccountId: Clone> AgreementInfo<AccountId> for ServiceAgreement<AccountId> 
 	}
 }
 
-
 #[derive(Eq, PartialEq, Clone, Encode, Decode, TypeInfo, RuntimeDebug)]
 pub struct RemoteIndex {
 	pub prefix: Index,
@@ -134,6 +133,6 @@ pub enum RemoteStorageProvider {
 
 #[derive(Eq, PartialEq, Clone, Encode, Decode, TypeInfo, RuntimeDebug)]
 pub struct RemoteStorage {
-	pub provider  : RemoteStorageProvider,
-	pub prefix : Vec<u8>
+	pub provider: RemoteStorageProvider,
+	pub prefix: Vec<u8>,
 }

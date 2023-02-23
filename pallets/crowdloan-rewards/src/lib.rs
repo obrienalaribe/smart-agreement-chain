@@ -332,8 +332,8 @@ pub mod pallet {
 				// Pallet is configured with a zero vesting period.
 				info.total_reward - first_paid
 			} else {
-				(info.total_reward - first_paid).saturating_mul(payable_period.into()) /
-					period.into()
+				(info.total_reward - first_paid).saturating_mul(payable_period.into())
+					/ period.into()
 			}; // integer "/" division only produces integer quotients.
 
 			// If the period is bigger than whats missing to pay, then return whats missing to pay
@@ -477,8 +477,8 @@ pub mod pallet {
 				info!("relay_account: {:?}", relay_account);
 				info!("native_account: {:?}", native_account);
 				info!("reward: {:?}", reward);
-				if ClaimedRelayChainIds::<T>::get(&relay_account).is_some() ||
-					UnassociatedContributions::<T>::get(&relay_account).is_some()
+				if ClaimedRelayChainIds::<T>::get(&relay_account).is_some()
+					|| UnassociatedContributions::<T>::get(&relay_account).is_some()
 				{
 					// Dont fail as this is supposed to be called with batch calls and we
 					// dont want to stall the rest of the contributions
@@ -487,7 +487,7 @@ pub mod pallet {
 						native_account.clone(),
 						*reward,
 					));
-					continue
+					continue;
 				}
 
 				if *reward < T::MinimumReward::get() {
@@ -498,7 +498,7 @@ pub mod pallet {
 						native_account.clone(),
 						*reward,
 					));
-					continue
+					continue;
 				}
 
 				// If we have a native_account, we make the payment
@@ -541,10 +541,10 @@ pub mod pallet {
 						AccountsPayable::<T>::insert(
 							native_account,
 							RewardInfo {
-								total_reward: inserted_reward_info.total_reward +
-									reward_info.total_reward,
-								claimed_reward: inserted_reward_info.claimed_reward +
-									reward_info.claimed_reward,
+								total_reward: inserted_reward_info.total_reward
+									+ reward_info.total_reward,
+								claimed_reward: inserted_reward_info.claimed_reward
+									+ reward_info.claimed_reward,
 								contributed_relay_addresses: inserted_reward_info
 									.contributed_relay_addresses,
 							},

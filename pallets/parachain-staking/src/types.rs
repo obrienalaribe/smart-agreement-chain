@@ -91,13 +91,13 @@ impl<A: PartialEq, B: PartialEq> PartialEq for CollatorSnapshot<A, B> {
 	fn eq(&self, other: &Self) -> bool {
 		let must_be_true = self.bond == other.bond && self.total == other.total;
 		if !must_be_true {
-			return false
+			return false;
 		}
 		for (Bond { owner: o1, amount: a1 }, Bond { owner: o2, amount: a2 }) in
 			self.delegations.iter().zip(other.delegations.iter())
 		{
 			if o1 != o2 || a1 != a2 {
-				return false
+				return false;
 			}
 		}
 		true
@@ -220,7 +220,7 @@ impl<AccountId, Balance: Copy + Ord + sp_std::ops::AddAssign + Zero + Saturating
 			if self.delegations[self.delegations.len() - 1].amount == delegation.amount {
 				self.delegations.push(delegation);
 				// early return
-				return
+				return;
 			}
 		}
 		// else binary search insertion
@@ -234,7 +234,7 @@ impl<AccountId, Balance: Copy + Ord + sp_std::ops::AddAssign + Zero + Saturating
 						new_index = new_index.saturating_add(1);
 					} else {
 						self.delegations.insert(new_index, delegation);
-						return
+						return;
 					}
 				}
 				self.delegations.push(delegation)
@@ -253,8 +253,9 @@ impl<AccountId, Balance: Copy + Ord + sp_std::ops::AddAssign + Zero + Saturating
 	/// Return the capacity status for bottom delegations
 	pub fn bottom_capacity<T: Config>(&self) -> CapacityStatus {
 		match &self.delegations {
-			x if x.len() as u32 >= T::MaxBottomDelegationsPerCandidate::get() =>
-				CapacityStatus::Full,
+			x if x.len() as u32 >= T::MaxBottomDelegationsPerCandidate::get() => {
+				CapacityStatus::Full
+			},
 			x if x.is_empty() => CapacityStatus::Empty,
 			_ => CapacityStatus::Partial,
 		}
@@ -568,8 +569,8 @@ impl<
 			.expect("CandidateInfo existence => BottomDelegations existence");
 		// if bottom is full, kick the lowest bottom (which is expected to be lower than input
 		// as per check)
-		let increase_delegation_count = if bottom_delegations.delegations.len() as u32 ==
-			T::MaxBottomDelegationsPerCandidate::get()
+		let increase_delegation_count = if bottom_delegations.delegations.len() as u32
+			== T::MaxBottomDelegationsPerCandidate::get()
 		{
 			let lowest_bottom_to_be_kicked = bottom_delegations
 				.delegations
@@ -932,8 +933,8 @@ impl<
 		let bond_after_less_than_highest_bottom =
 			bond.saturating_sub(less).into() < self.highest_bottom_delegation_amount;
 		// The top delegations is full and the bottom delegations has at least one delegation
-		let full_top_and_nonempty_bottom = matches!(self.top_capacity, CapacityStatus::Full) &&
-			!matches!(self.bottom_capacity, CapacityStatus::Empty);
+		let full_top_and_nonempty_bottom = matches!(self.top_capacity, CapacityStatus::Full)
+			&& !matches!(self.bottom_capacity, CapacityStatus::Empty);
 		let mut top_delegations =
 			<TopDelegations<T>>::get(candidate).ok_or(Error::<T>::CandidateDNE)?;
 		let in_top_after = if bond_after_less_than_highest_bottom && full_top_and_nonempty_bottom {
@@ -1032,32 +1033,32 @@ impl<
 // Temporary manual implementation for migration testing purposes
 impl<A: PartialEq, B: PartialEq> PartialEq for CollatorCandidate<A, B> {
 	fn eq(&self, other: &Self) -> bool {
-		let must_be_true = self.id == other.id &&
-			self.bond == other.bond &&
-			self.total_counted == other.total_counted &&
-			self.total_backing == other.total_backing &&
-			self.request == other.request &&
-			self.state == other.state;
+		let must_be_true = self.id == other.id
+			&& self.bond == other.bond
+			&& self.total_counted == other.total_counted
+			&& self.total_backing == other.total_backing
+			&& self.request == other.request
+			&& self.state == other.state;
 		if !must_be_true {
-			return false
+			return false;
 		}
 		for (x, y) in self.delegators.0.iter().zip(other.delegators.0.iter()) {
 			if x != y {
-				return false
+				return false;
 			}
 		}
 		for (Bond { owner: o1, amount: a1 }, Bond { owner: o2, amount: a2 }) in
 			self.top_delegations.iter().zip(other.top_delegations.iter())
 		{
 			if o1 != o2 || a1 != a2 {
-				return false
+				return false;
 			}
 		}
 		for (Bond { owner: o1, amount: a1 }, Bond { owner: o2, amount: a2 }) in
 			self.bottom_delegations.iter().zip(other.bottom_delegations.iter())
 		{
 			if o1 != o2 || a1 != a2 {
-				return false
+				return false;
 			}
 		}
 		true
@@ -1121,18 +1122,18 @@ pub struct Delegator<AccountId, Balance> {
 // Temporary manual implementation for migration testing purposes
 impl<A: PartialEq, B: PartialEq> PartialEq for Delegator<A, B> {
 	fn eq(&self, other: &Self) -> bool {
-		let must_be_true = self.id == other.id &&
-			self.total == other.total &&
-			self.less_total == other.less_total &&
-			self.status == other.status;
+		let must_be_true = self.id == other.id
+			&& self.total == other.total
+			&& self.less_total == other.less_total
+			&& self.status == other.status;
 		if !must_be_true {
-			return false
+			return false;
 		}
 		for (Bond { owner: o1, amount: a1 }, Bond { owner: o2, amount: a2 }) in
 			self.delegations.0.iter().zip(other.delegations.0.iter())
 		{
 			if o1 != o2 || a1 != a2 {
-				return false
+				return false;
 			}
 		}
 		true
@@ -1245,7 +1246,7 @@ impl<
 					amount: balance_amt,
 					in_top,
 				});
-				return Ok(())
+				return Ok(());
 			}
 		}
 		Err(Error::<T>::DelegationDNE.into())

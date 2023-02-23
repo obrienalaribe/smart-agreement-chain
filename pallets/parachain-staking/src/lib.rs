@@ -1276,12 +1276,12 @@ pub mod pallet {
 			// payout is now - delay rounds ago => now - delay > 0 else return early
 			let delay = T::RewardPaymentDelay::get();
 			if now <= delay {
-				return
+				return;
 			}
 			let round_to_payout = now.saturating_sub(delay);
 			let total_points = <Points<T>>::get(round_to_payout);
 			if total_points.is_zero() {
-				return
+				return;
 			}
 			let total_staked = <Staked<T>>::take(round_to_payout);
 			let total_issuance = Self::compute_issuance(total_staked);
@@ -1318,7 +1318,7 @@ pub mod pallet {
 
 			// don't underflow uint
 			if now < delay {
-				return 0u64.into()
+				return 0u64.into();
 			}
 
 			let paid_for_round = now.saturating_sub(delay);
@@ -1355,7 +1355,7 @@ pub mod pallet {
 				// 2. we called pay_one_collator_reward when we were actually done with deferred
 				//    payouts
 				log::warn!("pay_one_collator_reward called with no <Points<T>> for the round!");
-				return (None, 0u64.into())
+				return (None, 0u64.into());
 			}
 
 			let mint = |amt: BalanceOf<T>, to: T::AccountId| {
@@ -1471,7 +1471,7 @@ pub mod pallet {
 						total_exposed_amount: *snapshot_total,
 					})
 				}
-				return (collator_count, delegation_count, total)
+				return (collator_count, delegation_count, total);
 			}
 
 			// snapshot exposure for round for weighting reward distribution
@@ -1597,7 +1597,7 @@ pub mod pallet {
 	impl<T: Config> pallet_session::ShouldEndSession<T::BlockNumber> for Pallet<T> {
 		fn should_end_session(now: T::BlockNumber) -> bool {
 			let round = <Round<T>>::get();
-			return round.should_update(now)
+			return round.should_update(now);
 		}
 	}
 

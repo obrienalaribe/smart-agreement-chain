@@ -2823,7 +2823,7 @@ fn execute_delegator_bond_less_updates_just_bottom_delegations() {
 					if &owner == post_owner {
 						if &amount != post_amount {
 							not_equal = true;
-							break
+							break;
 						}
 					}
 				}
@@ -2837,7 +2837,7 @@ fn execute_delegator_bond_less_updates_just_bottom_delegations() {
 					if &owner == post_owner {
 						if &amount != post_amount {
 							equal = false;
-							break
+							break;
 						}
 					}
 				}
@@ -2881,7 +2881,7 @@ fn execute_delegator_bond_less_does_not_delete_bottom_delegations() {
 					if &owner == post_owner {
 						if &amount != post_amount {
 							equal = false;
-							break
+							break;
 						}
 					}
 				}
@@ -2895,7 +2895,7 @@ fn execute_delegator_bond_less_does_not_delete_bottom_delegations() {
 					if &owner == post_owner {
 						if &amount != post_amount {
 							not_equal = true;
-							break
+							break;
 						}
 					}
 				}
