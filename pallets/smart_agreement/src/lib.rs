@@ -2,8 +2,7 @@
 
 pub mod info_types;
 pub use info_types::{
-	AgreementInfo, Participant, RemoteStorage, RemoteStorageProvider,
-	ServiceAgreement, VoteInfo,
+	AgreementInfo, Participant, RemoteStorage, RemoteStorageProvider, ServiceAgreement, VoteInfo,
 };
 
 pub use pallet::*;
@@ -115,7 +114,6 @@ pub mod pallet {
 	#[pallet::getter(fn remote_storage_path)]
 	pub type RemoteStoragePath<T: Config> =
 		StorageMap<_, Blake2_128Concat, AgreementId<T>, RemoteStorage, OptionQuery>;
-
 
 	// Predefined set of prefix URLs at genesis to be referenced via index
 	#[pallet::genesis_config]
@@ -311,9 +309,10 @@ pub mod pallet {
 						RemoteStorageIndex::<T>::get(prefix).is_some(),
 						Error::<T>::UnknownRemoteStorageIndex
 					);
-					let storage_path: RemoteStorage = RemoteStorage { prefix: prefix, suffix, agreement_id };
+					let storage_path: RemoteStorage =
+						RemoteStorage { prefix, suffix, agreement_id };
 					RemoteStoragePath::<T>::insert(&agreement_id, storage_path);
-				}
+				},
 			}
 
 			Ok(())
