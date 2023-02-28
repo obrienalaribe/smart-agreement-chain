@@ -296,35 +296,6 @@ pub mod pallet {
 			// Todo implement
 			Ok(())
 		}
-
-		/// Enables persistence/recreation of remote storage path
-		/// Checks:
-		/// - Prefix index exist
-		/// Action:
-		/// - Stores remote location path for providers
-		///
-		#[pallet::weight(0)]
-		pub fn store_agreement_evidence(
-			_origin: OriginFor<T>,
-			agreement: ServiceAgreement<T::AccountId>,
-		) -> DispatchResult {
-
-
-			// match storage_provider {
-			// 	rsp @ RemoteStorageProvider::GCS => {
-			// 		let prefix = rsp as u32;
-			// 		ensure!(
-			// 			RemoteStorageIndex::<T>::get(prefix),
-			// 			Error::<T>::UnknownRemoteStorageIndex
-			// 		);
-			// 		let storage_path: RemoteStorage =
-			// 			RemoteStorage { prefix, suffix, agreement_id };
-			// 		RemoteStoragePath::<T>::insert(&agreement_id, storage_path);
-			// 	},
-			// }
-
-			Ok(())
-		}
 	}
 
 	impl<T: Config> Pallet<T> {
