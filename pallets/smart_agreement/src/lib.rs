@@ -218,7 +218,8 @@ pub mod pallet {
 			// Construct remote storage path
 			let prefix = 0u128;
 			RemoteStorageIndex::<T>::get(prefix).ok_or(Error::<T>::UnknownRemoteStorageIndex)?;
-			let storage_path: RemoteStorage = RemoteStorage { prefix: prefix, suffix: future_count, agreement_id };
+			let storage_path: RemoteStorage =
+				RemoteStorage { prefix, suffix: future_count, agreement_id };
 			RemoteStoragePath::<T>::insert(&agreement_id, storage_path);
 
 			Self::deposit_event(Event::<T>::AgreementProposed {
@@ -333,6 +334,5 @@ pub mod pallet {
 
 			Ok(())
 		}
-
 	}
 }

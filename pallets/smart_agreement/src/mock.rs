@@ -87,11 +87,11 @@ impl pallet_balances::Config for Test {
 }
 
 // Test Externalities specific imports
+use codec::Encode;
+use frame_support::traits::GenesisBuild;
 use sp_core::testing::SR25519;
 use sp_keystore::{testing::KeyStore, KeystoreExt, SyncCryptoStore};
 use std::sync::Arc;
-use codec::Encode;
-use frame_support::traits::GenesisBuild;
 
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
@@ -103,7 +103,6 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 	const EVE_PHRASE: &str =
 		"rain matter permit differ deer master purchase galaxy avoid amused drink unit";
 
-
 	let keystore = KeyStore::new();
 	keystore.sr25519_generate_new(SR25519, Some(ALICE_PHRASE)).unwrap();
 	keystore.sr25519_generate_new(SR25519, Some(BOB_PHRASE)).unwrap();
@@ -111,14 +110,12 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 
 	let mut storage = system::GenesisConfig::default().build_storage::<Test>().unwrap();
 	GenesisBuild::<Test>::assimilate_storage(
-		&pallet_smart_agreement::GenesisConfig {
-			prefix: "GCP_BUCKET/agreements".encode(),
-		},
+		&pallet_smart_agreement::GenesisConfig { prefix: "GCP_BUCKET/agreements".encode() },
 		&mut storage,
-	).unwrap();
+	)
+	.unwrap();
 
 	let mut ext = sp_io::TestExternalities::from(storage);
 	ext.register_extension(KeystoreExt(Arc::new(keystore)));
 	ext
-
 }
