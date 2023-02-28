@@ -1,4 +1,5 @@
-use crate::{info_types::*, mock::*, Error};
+use codec::Encode;
+use crate::{info_types::*, mock::*, Error, RemoteStorageIndex, RemoteStoragePath};
 use frame_support::{assert_noop, assert_ok};
 use sp_core::{testing::SR25519, H256};
 use sp_runtime::traits::Hash;
@@ -21,6 +22,14 @@ where
 		amount: None,
 		agreement_data_hash: H256::default(),
 	}
+}
+
+#[test]
+fn base_prefix_for_remote_storage() {
+	new_test_ext().execute_with(|| {
+		assert_eq!(RemoteStorageIndex::<Test>::get(0).unwrap(), "GCP_BUCKET/agreements".encode());
+		assert_eq!(RemoteStorageIndex::<Test>::get(1), None);
+	})
 }
 
 #[test]
@@ -53,6 +62,7 @@ fn propose_agreement() {
 		sa.agreement_id = agreement_id.clone();
 		assert_eq!(SmartAgreement::proposed_service_agreements(&agreement_id).unwrap(), sa);
 		assert_eq!(SmartAgreement::num_proposals_for_account(alice_pub), AGREEMENT_COUNT as u32);
+		assert_eq!(RemoteStoragePath::<Test>::get(&agreement_id), Some(RemoteStorage{ prefix: 0, suffix: AGREEMENT_COUNT, agreement_id: agreement_id }));
 	})
 }
 

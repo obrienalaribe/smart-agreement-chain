@@ -107,7 +107,7 @@ pub mod pallet {
 	#[pallet::storage]
 	#[pallet::getter(fn remote_storage_index)]
 	pub type RemoteStorageIndex<T: Config> =
-		StorageMap<_, Blake2_128Concat, u32, Vec<u8>, OptionQuery>;
+		StorageMap<_, Blake2_128Concat, u128, Vec<u8>, OptionQuery>;
 
 	//AgreementId -> Vec<(StorageBackendIndex, Suffix, ContentHash)>
 	#[pallet::storage]
@@ -118,12 +118,14 @@ pub mod pallet {
 	// Predefined set of prefix URLs at genesis to be referenced via index
 	#[pallet::genesis_config]
 	#[derive(Default)]
-	pub struct GenesisConfig;
+	pub struct GenesisConfig {
+		pub prefix: Vec<u8>,
+	}
 
 	#[pallet::genesis_build]
 	impl<T: Config> GenesisBuild<T> for GenesisConfig {
 		fn build(&self) {
-			<RemoteStorageIndex<T>>::insert(1, "GCP_BUCKET/agreements".encode());
+			<RemoteStorageIndex<T>>::insert(0, "GCP_BUCKET/agreements".encode());
 		}
 	}
 
@@ -213,6 +215,12 @@ pub mod pallet {
 			ProposedServiceAgreements::<T>::insert(&agreement_id, agreement_to_be_stored.clone());
 			NumProposalsForAccount::<T>::mutate(&proposer, |count| *count = *count + 1);
 
+			// Construct remote storage path
+			let prefix = 0u128;
+			RemoteStorageIndex::<T>::get(prefix).ok_or(Error::<T>::UnknownRemoteStorageIndex)?;
+			let storage_path: RemoteStorage = RemoteStorage { prefix: prefix, suffix: future_count, agreement_id };
+			RemoteStoragePath::<T>::insert(&agreement_id, storage_path);
+
 			Self::deposit_event(Event::<T>::AgreementProposed {
 				proposer,
 				buyer: buyer.account_id,
@@ -298,22 +306,22 @@ pub mod pallet {
 		#[pallet::weight(0)]
 		pub fn store_agreement_evidence(
 			_origin: OriginFor<T>,
-			agreement_id: AgreementId<T>,
-			storage_provider: RemoteStorageProvider,
-			suffix: u32,
+			agreement: ServiceAgreement<T::AccountId>,
 		) -> DispatchResult {
-			match storage_provider {
-				rsp @ RemoteStorageProvider::GCS => {
-					let prefix = rsp as u32;
-					ensure!(
-						RemoteStorageIndex::<T>::get(prefix).is_some(),
-						Error::<T>::UnknownRemoteStorageIndex
-					);
-					let storage_path: RemoteStorage =
-						RemoteStorage { prefix, suffix, agreement_id };
-					RemoteStoragePath::<T>::insert(&agreement_id, storage_path);
-				},
-			}
+
+
+			// match storage_provider {
+			// 	rsp @ RemoteStorageProvider::GCS => {
+			// 		let prefix = rsp as u32;
+			// 		ensure!(
+			// 			RemoteStorageIndex::<T>::get(prefix),
+			// 			Error::<T>::UnknownRemoteStorageIndex
+			// 		);
+			// 		let storage_path: RemoteStorage =
+			// 			RemoteStorage { prefix, suffix, agreement_id };
+			// 		RemoteStoragePath::<T>::insert(&agreement_id, storage_path);
+			// 	},
+			// }
 
 			Ok(())
 		}
@@ -354,5 +362,6 @@ pub mod pallet {
 
 			Ok(())
 		}
+
 	}
 }

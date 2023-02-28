@@ -118,8 +118,8 @@ impl<AccountId: Clone> AgreementInfo<AccountId> for ServiceAgreement<AccountId> 
 
 #[derive(Eq, PartialEq, Clone, Encode, Decode, TypeInfo, RuntimeDebug)]
 pub struct RemoteStorage {
-	pub prefix: u32,
-	pub suffix: u32,
+	pub prefix: u128,
+	pub suffix: u128,
 	pub agreement_id: H256,
 }
 
@@ -128,9 +128,3 @@ pub struct RemoteStorage {
 pub enum RemoteStorageProvider {
 	GCS = 0,
 }
-
-// #[derive(Eq, PartialEq, Clone, Encode, Decode, TypeInfo, RuntimeDebug)]
-// pub struct RemoteStorage {
-// 	pub provider: RemoteStorageProvider,
-// 	pub prefix: Vec<u8>,
-// }
